@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>直玩問答 GitHub 連線測試</title>
+<style>
+  body { font-family: sans-serif; margin: 0; padding: 16px; background: #f4f6f9; font-size: 17px; }
+  h1 { font-size: 1.3rem; }
+  .card { background: #fff; border-radius: 12px; padding: 14px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  button { font-size: 1rem; padding: 10px 14px; margin: 4px 4px 4px 0; border: 0; border-radius: 8px; background: #4a90d9; color: #fff; }
+  pre { white-space: pre-wrap; word-break: break-all; background: #f7f7f7; padding: 10px; border-radius: 8px; font-size: .85rem; max-height: 50vh; overflow: auto; }
+  .ok { color: #1e8449; font-weight: bold; } .bad { color: #c0392b; font-weight: bold; }
+</style>
+</head>
+<body>
+<h1>🧪 直玩問答：GitHub 前端連線測試</h1>
+
+<div class="card">
+  <b>1. 連線 GAS 後端</b><br>
+  <button onclick="run('ping')">ping</button>
+  <button onclick="run('init')">init（活動狀態＋題目）</button>
+  <div id="status"></div>
+  <pre id="out">（按上面按鈕）</pre>
+</div>
+
+<div class="card">
+  <b>2. localStorage 保存測試</b>（重新整理、關掉再開、在 FB 內建瀏覽器開，數字應該一直累加）<br>
+  開過這頁 <span id="visits" class="ok"></span> 次
+  <button onclick="resetVisits()">歸零</button>
+</div>
+
+<div class="card" style="font-size:.85rem;color:#666;">
+  瀏覽器：<span id="ua"></span>
+</div>
+
+<script>
+  // GAS 部署 /exec 網址（直玩問答模組的同一筆部署）
+  const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbyUOnqGcBTbSmoemKt7eaathaop6Ab_Jj-WfFoVnP_McOxKW_Vy4VB9TcUyf3dbHkcXNA/exec';
+
+  // 通用 API 呼叫：text/plain 避開 CORS 預檢
+  async function callGasApi(action, payload) {
+    const res = await fetch(GAS_API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: action, payload: payload || {} })
+    });
+    const json = await res.json();
+    if (!json.ok) throw new Error(json.error);
+    return json.data;
+  }
+
+  async function run(action) {
+    const st = document.getElementById('status');
+    const out = document.getElementById('out');
+    st.textContent = '連線中…';
+    const t0 = Date.now();
+    try {
+      const data = await callGasApi(action);
+      st.innerHTML = '<span class="ok">✅ 成功（' + (Date.now() - t0) + ' ms）</span>';
+      out.textContent = JSON.stringify(data, null, 2);
+    } catch (e) {
+      st.innerHTML = '<span class="bad">❌ 失敗（' + (Date.now() - t0) + ' ms）</span>';
+      out.textContent = String(e);
+    }
+  }
+
+  function showVisits() {
+    let n = 0;
+    try {
+      n = Number(localStorage.getItem('zhiwanTestVisits') || 0) + 1;
+      localStorage.setItem('zhiwanTestVisits', String(n));
+      document.getElementById('visits').textContent = n;
+    } catch (e) {
+      document.getElementById('visits').innerHTML = '<span class="bad">localStorage 無法使用：' + e + '</span>';
+    }
+  }
+  function resetVisits() {
+    try { localStorage.removeItem('zhiwanTestVisits'); } catch (e) {}
+    document.getElementById('visits').textContent = 0;
+  }
+
+  document.getElementById('ua').textContent = navigator.userAgent;
+  showVisits();
+</script>
+</body>
+</html>
