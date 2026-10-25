@@ -231,29 +231,38 @@
   let PRIZE = 10;
 
   // 呼叫 GAS API：Content-Type 用 text/plain，避開 CORS 預檢；回傳 data，失敗丟錯
-  async function callGasApi(action, payload) {
-    const res = await fetch(GAS_API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action: action, payload: payload || {} })
-    });
-    const json = await res.json();
-    if (!json.ok) throw new Error(json.error);
-    return json.data;
+  // timeoutMs：超過就放棄並丟錯（閒聊用，Gemini 偶爾很慢，不能讓客人呆等）；不給＝不限時
+  async function callGasApi(action, payload, timeoutMs) {
+    const ctrl = timeoutMs && window.AbortController ? new AbortController() : null;
+    const timer = ctrl ? setTimeout(function () { ctrl.abort(); }, timeoutMs) : null;
+    try {
+      const res = await fetch(GAS_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: action, payload: payload || {} }),
+        signal: ctrl ? ctrl.signal : undefined
+      });
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error);
+      return json.data;
+    } finally {
+      if (timer) clearTimeout(timer);
+    }
   }
+  const CHAT_TIMEOUT_MS = 20000; // 閒聊等超過 20 秒就顯示「小助手有點忙」，輸入框收起、可直接下一題
 
   // 取代 google.script.run 的同款寫法：gasRun().withSuccessHandler(f).withFailureHandler(g).函式名(參數…)
   // 讓原本的成功／失敗處理程式不必改動
   function gasRun() {
     let onOk = function () {}, onFail = function () {};
-    const call = function (action, payload) {
-      callGasApi(action, payload).then(function (d) { onOk(d); }, function (e) { onFail(e); });
+    const call = function (action, payload, timeoutMs) {
+      callGasApi(action, payload, timeoutMs).then(function (d) { onOk(d); }, function (e) { onFail(e); });
     };
     const runner = {
       withSuccessHandler: function (f) { onOk = f; return runner; },
       withFailureHandler: function (f) { onFail = f; return runner; },
       chatReply: function (seed, questionText, feedbackText, history, userMessage, testCode) {
-        call('chatReply', { seed: seed, questionText: questionText, feedbackText: feedbackText, history: history, userMessage: userMessage, testCode: testCode });
+        call('chatReply', { seed: seed, questionText: questionText, feedbackText: feedbackText, history: history, userMessage: userMessage, testCode: testCode }, CHAT_TIMEOUT_MS);
       },
       issueCertificate: function (activityCode, answers, testCode) {
         call('issueCertificate', { activityCode: activityCode, answers: answers, testCode: testCode });
