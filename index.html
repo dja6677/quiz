@@ -85,6 +85,11 @@
 
   .intro-text { font-size: 1.5rem; line-height: 1.6; text-align: center; margin-bottom: 0.5rem; }
   .intro-rule { font-size: 1.083rem; line-height: 1.6; text-align: center; color: #666; }
+  .intro-about { margin-top: 0.833rem; font-size: 1rem; color: #555; }
+  .intro-about summary { cursor: pointer; text-align: center; color: #1565c0; }
+  .intro-about ul { margin: 0.5rem 0 0; padding-left: 1.25rem; line-height: 1.7; }
+  .intro-footer { margin-top: 0.833rem; text-align: center; font-size: 0.917rem; color: #888; }
+  .intro-footer a { color: #1565c0; margin-left: 0.5rem; }
 
   /* ===== 得獎憑證 ===== */
   .cert-note { font-size: 1rem; color: #888; text-align: center; margin-bottom: 0.667rem; }
@@ -191,9 +196,20 @@
 <div id="screen-loading" class="card"><div class="final-msg">載入中…</div></div>
 
 <div id="screen-intro" class="card" style="display:none;">
-  <div class="intro-text" id="intro-text">準備好了嗎？答對有獎金喔！</div>
+  <div class="intro-text" id="intro-text">準備好了嗎？答對拿購物金！</div>
   <div class="intro-rule" id="intro-rule"></div>
   <button class="btn btn-next" id="intro-btn" onclick="beginQuiz()">開始問答</button>
+  <details class="intro-about">
+    <summary>📋 活動說明</summary>
+    <ul>
+      <li>共 3 題，每題限時作答，答對越多購物金越多</li>
+      <li>答完請截圖，私訊小編登記</li>
+      <li>購物金可到店消費抵扣</li>
+      <li>每期每人限參加一次</li>
+      <li>詳細規則以小編登記通知為準</li>
+    </ul>
+  </details>
+  <div class="intro-footer">天生一對 鞋.童裝<span id="fb-link"></span></div>
 </div>
 
 <div id="screen-quiz" class="card">
@@ -208,7 +224,7 @@
 <div id="screen-summary" class="card">
   <div class="summary-total">
     <div class="num" id="summary-num">0</div>
-    <div class="label">本輪獲得（元）</div>
+    <div class="label">本輪購物金（元）</div>
   </div>
   <div id="summary-body"></div>
 </div>
@@ -485,12 +501,12 @@
     }
 
     document.getElementById('intro-rule').textContent =
-      '共 ' + state.questions.length + ' 題，每題 ' + SECONDS + ' 秒，答對一題 ' + PRIZE + ' 元';
+      '共 ' + state.questions.length + ' 題，每題 ' + SECONDS + ' 秒，答對一題 ' + PRIZE + ' 元購物金';
     if (qIndex > 0) {
       document.getElementById('intro-text').textContent = '接續作答：第 ' + (qIndex + 1) + ' 題／共 ' + state.questions.length + ' 題';
       document.getElementById('intro-rule').textContent =
         (escapedIndex >= 0 ? '第 ' + (escapedIndex + 1) + ' 題作答中離開，以超時計算。' : '') +
-        '目前累計 ' + totalReward() + ' 元';
+        '目前累計 ' + totalReward() + ' 元購物金';
       document.getElementById('intro-btn').textContent = '繼續作答';
       setBannerProgress(qIndex + 1);
     }
@@ -595,7 +611,7 @@
     saveState();
 
     currentQuestionText = q.question;
-    currentFeedbackText = correct ? ('✅ 答對了！+' + PRIZE + '元') : ('❌ 答錯了，正解是 ' + q.answer);
+    currentFeedbackText = correct ? ('✅ 答對了！+' + PRIZE + ' 元購物金') : ('❌ 答錯了，正解是 ' + q.answer);
     chatHistory = [];
     chatRound = 0;
     triggerFeedback(correct ? 'correct' : 'wrong');
@@ -709,7 +725,7 @@
         if (!document.getElementById('chat-log')) return; // 已經按下一題離開了
         hideTyping();
         if (!res || !res.ok) {
-          endChat('小助手有點忙，先跳過聊天，繼續答題拿獎金吧！');
+          endChat('小助手有點忙，先跳過聊天，繼續答題拿購物金吧！');
           return;
         }
         const reply = cleanReply(res.reply);
@@ -729,7 +745,7 @@
       .withFailureHandler(function () {
         if (!document.getElementById('chat-log')) return;
         hideTyping();
-        endChat('小助手有點忙，先跳過聊天，繼續答題拿獎金吧！');
+        endChat('小助手有點忙，先跳過聊天，繼續答題拿購物金吧！');
       })
       .chatReply(seed, currentQuestionText, currentFeedbackText, chatHistory, message, TEST_CODE);
   }
@@ -810,7 +826,7 @@
       // 一題都沒答對：不發憑證，不用私訊客服
       el.innerHTML = note +
         '<div class="cert-title">本輪答對 0 題</div>' +
-        '<div class="final-msg">這次沒有拿到獎金，不用私訊客服喔！<br>請留意粉絲專頁，下期再來挑戰 💪</div>';
+        '<div class="final-msg">這次沒有拿到購物金，不用私訊客服喔！<br>請留意粉絲專頁，下期再來挑戰 💪</div>';
     } else {
       el.innerHTML = note +
         '<div class="cert-title">🎉 得獎憑證</div>' +
@@ -824,9 +840,9 @@
         '<div class="cert-ticket">' +
           '<div class="cert-label">憑證號碼</div>' +
           '<div class="cert-no">' + escapeHtml(c.certNo) + '</div>' +
-          '<div class="cert-label">獎金</div>' +
+          '<div class="cert-label">購物金</div>' +
           '<div class="cert-amount">' + escapeHtml(c.amount) + ' 元</div>' +
-          '<div class="cert-coins">🪙💰🪙</div>' +
+          '<div class="cert-coins">🎁🛍️🎁</div>' +
           '<div class="cert-meta">答對 ' + escapeHtml(c.correctCount) + ' 題／共 ' + state.questions.length + ' 題</div>' +
         '</div>';
     }
@@ -858,6 +874,11 @@
       SECONDS = Number(CONFIG.secondsPerQuestion) || 15;
       PRIZE = Number(CONFIG.prizePerQuestion) || 10;
       document.querySelectorAll('.deadline-text').forEach(function (el) { el.textContent = d.deadlineText; });
+      const fbAccount = String(CONFIG.messengerUrl || '').replace(/^https?:\/\/m\.me\//, '');
+      if (fbAccount && fbAccount !== CONFIG.messengerUrl) {
+        document.getElementById('fb-link').innerHTML =
+          '<a href="https://www.facebook.com/' + escapeHtml(fbAccount) + '" target="_blank" rel="noopener">粉絲專頁</a>';
+      }
       init();
     }).catch(function () {
       document.getElementById('screen-loading').innerHTML =
