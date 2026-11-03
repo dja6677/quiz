@@ -834,9 +834,9 @@
         '<div class="cert-title">🎉 得獎憑證</div>' +
         // 領取期限、末三碼等注意事項改由客服收到截圖時告知；畫面只留「截圖＋傳送客服」一個動作
         // 傳送門直接開 Messenger 私訊粉絲專頁（系統參數「FB網址」留空就只顯示文字）
-        '<div class="cert-alert"><span>📸 請立刻截圖結果傳送客服</span>' +
+        '<div class="cert-alert"><span>📸 請立刻截圖結果私訊客服</span>' +
           (CONFIG.messengerUrl
-            ? '<a class="portal-btn" href="' + escapeHtml(CONFIG.messengerUrl) + '" target="_blank" rel="noopener">傳送客服</a>'
+            ? '<a class="portal-btn" href="' + escapeHtml(CONFIG.messengerUrl) + '" target="_blank" rel="noopener">私訊客服</a>'
             : '') +
         '</div>' +
         '<div class="cert-ticket">' +
@@ -857,7 +857,7 @@
     const m = String(deadline || '').match(/^\d{4}\/(\d{1,2})\/(\d{1,2})/);
     if (!m) return '';
     return '<div class="cert-expiry"><b>🎁 購物金使用期限至 ' + Number(m[1]) + '/' + Number(m[2]) + '</b><br>' +
-      '不用馬上買，期限內來店消費或網購出貨都能抵扣<br>（先登記存起來，想買再用就好）</div>';
+      '不用馬上買，期限內來店消費或網購出貨都能抵扣<br>（先截圖私訊客服存起來，想買再用就好）</div>';
   }
 
   // 只顯示訊息（維護中／尚未開始／連線失敗）：標題列與橫幅一起收起，和 GAS 版的訊息頁一樣乾淨
