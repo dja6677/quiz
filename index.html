@@ -108,12 +108,13 @@
   .cert-alert {
     display: flex; align-items: center; gap: 0.5rem;
     background: #c0392b; color: #fff; border-radius: 0.417rem; padding: 0.5rem 0.5rem 0.5rem 0.75rem; margin-bottom: 0.75rem;
-    font-size: 1.167rem; font-weight: bold; animation: alertPulse 1.6s ease-in-out infinite;
+    font-size: 1rem; font-weight: bold; animation: alertPulse 1.6s ease-in-out infinite;
   }
-  .cert-alert span { flex: 1; line-height: 1.4; }
+  .cert-alert-text { flex: 1; min-width: 0; line-height: 1.45; }
+  .cert-alert-text div + div { margin-top: 0.25rem; }
   @keyframes alertPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
   .portal-btn {
-    flex: none; padding: 0.583rem 0.75rem; border-radius: 0.417rem; white-space: nowrap;
+    flex: none; display: flex; align-items: center; min-height: 44px; padding: 0.583rem 0.75rem; border-radius: 0.417rem; white-space: nowrap;
     background: #fff; color: #0084ff; font-size: 1.167rem; font-weight: bold; text-decoration: none;
   }
 
@@ -832,11 +833,16 @@
     } else {
       el.innerHTML = note +
         '<div class="cert-title">🎉 得獎憑證</div>' +
-        // 領取期限、末三碼等注意事項改由客服收到截圖時告知；畫面只留「截圖＋傳送客服」一個動作
+        // 領取期限、末三碼等注意事項改由客服收到截圖時告知；畫面只留「截圖＋聯絡客服」一個動作
         // 傳送門直接開 Messenger 私訊粉絲專頁（系統參數「FB網址」留空就只顯示文字）
-        '<div class="cert-alert"><span>📸 請立刻截圖結果私訊客服</span>' +
+        '<div class="cert-alert"><div class="cert-alert-text">' +
+          '<div>📸 ① 先截圖這個畫面</div>' +
+          '<div>💬 ② 到 FB「天生一對」粉專傳訊息給客服登記</div>' +
+          // 沒設定 FB網址就沒有按鈕，「按右邊」這行也不顯示
+          (CONFIG.messengerUrl ? '<div>👉 按右邊「聯絡客服」可直接開啟FB訊息對話</div>' : '') +
+        '</div>' +
           (CONFIG.messengerUrl
-            ? '<a class="portal-btn" href="' + escapeHtml(CONFIG.messengerUrl) + '" target="_blank" rel="noopener">私訊客服</a>'
+            ? '<a class="portal-btn" href="' + escapeHtml(CONFIG.messengerUrl) + '" target="_blank" rel="noopener">聯絡客服</a>'
             : '') +
         '</div>' +
         '<div class="cert-ticket">' +
