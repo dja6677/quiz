@@ -106,15 +106,15 @@
   .cert-expiry { background: #eef7ee; border-radius: 0.417rem; padding: 0.583rem 0.75rem; margin-bottom: 0.75rem; text-align: center; font-size: 1rem; line-height: 1.6; color: #2e5e34; }
   .cert-expiry b { font-size: 1.083rem; }
   .cert-alert {
-    display: flex; align-items: center; gap: 0.5rem;
-    background: #c0392b; color: #fff; border-radius: 0.417rem; padding: 0.5rem 0.5rem 0.5rem 0.75rem; margin-bottom: 0.75rem;
+    display: flex; flex-direction: column; gap: 0.5rem;
+    background: #c0392b; color: #fff; border-radius: 0.417rem; padding: 0.583rem 0.75rem; margin-bottom: 0.75rem;
     font-size: 1rem; font-weight: bold; animation: alertPulse 1.6s ease-in-out infinite;
   }
-  .cert-alert-text { flex: 1; min-width: 0; line-height: 1.45; }
+  .cert-alert-text { line-height: 1.45; }
   .cert-alert-text div + div { margin-top: 0.25rem; }
   @keyframes alertPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
   .portal-btn {
-    flex: none; display: flex; align-items: center; min-height: 44px; padding: 0.583rem 0.75rem; border-radius: 0.417rem; white-space: nowrap;
+    display: flex; align-items: center; justify-content: center; min-height: 44px; padding: 0.583rem 0.75rem; border-radius: 0.417rem; white-space: nowrap;
     background: #fff; color: #0084ff; font-size: 1.167rem; font-weight: bold; text-decoration: none;
   }
 
@@ -838,8 +838,8 @@
         '<div class="cert-alert"><div class="cert-alert-text">' +
           '<div>📸 ① 先截圖這個畫面</div>' +
           '<div>💬 ② 到 FB「天生一對」粉專傳訊息給客服登記</div>' +
-          // 沒設定 FB網址就沒有按鈕，「按右邊」這行也不顯示
-          (CONFIG.messengerUrl ? '<div>👉 按右邊「聯絡客服」可直接開啟FB訊息對話</div>' : '') +
+          // 沒設定 FB網址就沒有按鈕，「按下方」這行也不顯示
+          (CONFIG.messengerUrl ? '<div>👉 按下方「聯絡客服」可直接開啟FB訊息對話</div>' : '') +
         '</div>' +
           (CONFIG.messengerUrl
             ? '<a class="portal-btn" href="' + escapeHtml(CONFIG.messengerUrl) + '" target="_blank" rel="noopener">聯絡客服</a>'
